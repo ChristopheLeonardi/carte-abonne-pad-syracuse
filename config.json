@@ -1,0 +1,10 @@
+{
+    "categories": [
+        { "name": "all", "layer": "all", "color": "#BEBEBE", "icon": "/ui/plug-in/integration/carte-abonne-pad/img/ico-all-type.svg", "type": "toutes les institutions", "label": "Toutes les institutions", "cluster_multiple": false },
+        { "name": "bibliotheques", "layer": "marker-cluster-bibli", "color": "#ffe8be", "icon": "/ui/plug-in/integration/carte-abonne-pad/img/ico-mediatheque.svg", "type": "bibliothèque", "label": "Bibliothèques", "cluster_multiple": true },
+        { "name": "universites", "layer": "marker-cluster-uni", "color": "#90D4D8", "icon": "/ui/plug-in/integration/carte-abonne-pad/img/ico-universite.svg", "type": "établissement d'enseignement supérieur", "label": "Universités", "cluster_multiple": true },
+        { "name": "conservatoires", "layer": "marker-cluster-cons", "color": "#DBB7C1", "icon": "/ui/plug-in/integration/carte-abonne-pad/img/ico-conservatoire.svg", "type": "conservatoire", "label": "Conservatoires", "cluster_multiple": true }
+    ],
+    "regions": ["auvergne-rhône-alpes", "bourgogne-franche-comté", "bretagne", "centre-val de loire", "corse", "grand est", "guadeloupe", "guyane", "hauts-de-france", "île-de-france", "la réunion", "martinique", "normandie", "nouvelle-aquitaine", "occitanie", "pays de la loire", "provence-alpes-côte d'azur"]
+
+}
