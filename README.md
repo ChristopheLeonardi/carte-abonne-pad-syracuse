@@ -11,7 +11,7 @@ Ce module permet de créer un système de cartographie à partir d'un jeu de don
 
 # Description du code
 
-## congif.json
+## config.json
 
 Fichier de paramétrage des catégories et de valeurs de multiclustering.
 
