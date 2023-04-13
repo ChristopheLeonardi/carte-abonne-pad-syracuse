@@ -74,7 +74,7 @@ Promise.all(promises).then(data => {
 
         document.getElementById("mapFilter").appendChild(fieldset)
 
-        DOMFilter(document.getElementById("mapFilter"))
+        DOMFilter(document.getElementById("mapContainer"))
 
         return div;
     };

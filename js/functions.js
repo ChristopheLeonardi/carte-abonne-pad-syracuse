@@ -206,7 +206,7 @@ const filterSearch = (data) => {
         data = window[`${catFilter}Data`]
     }
 
-    var searchTerms = document.getElementById("seeker").value
+    var searchTerms = document.getElementById("seeker").value.replace(/\s$/gmi, "")
 
     // Traitement de la recherche avec prise en charge de la recherche exacte ("lorem")
 
@@ -223,29 +223,19 @@ const filterSearch = (data) => {
     var filtered = []
 
     /* Data filter method */
-    Object.filter = (obj, predicate) =>
-        Object.keys(obj)
-        .filter(key => predicate(obj[key]))
-        .reduce((res, key) => (res[key] = obj[key], res), {})
+    var filtered = []
 
-    data.map(item => {
-
-        queryReg.map(query => {
-            var queryResults = []
-            var regex = new RegExp(query, 'gm')
-            Object.filter(item, key => {
-                if ((regex.test(key) && (queryResults.indexOf(item) === -1))) {
-                    queryResults.push(item)
-                }
-            })
-            if (queryResults.length != 0) { filtered.push(queryResults) }
-        })
-    })
+    const filterIt = (arr, query) => {
+        return arr.filter(obj => Object.keys(obj).some(key => {
+            return new RegExp(query, "mgi").test(obj[key])
+        }))
+    }
+    queryReg.map(query => { filtered.push(filterIt(data, query)) })
 
     // Prise en charge de la recherche avec mots multiples dans tous les champs de data
     if (queryReg.length > 1) {
-        let pings = filtered.flat().map((e, i, final) => final.indexOf(e) !== i && i).filter(obj => filtered[obj])
-        filtered = pings.map(ping => filtered[ping])
+        const findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
+        filtered = findDuplicates(filtered.flat())
     }
     return { "filtered": filtered.flat(), "query": queryReg }
 }

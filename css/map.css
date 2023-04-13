@@ -12,6 +12,7 @@ b {
     justify-content: space-between;
     flex-direction: column-reverse;
     margin: 1em 0;
+    flex-wrap: wrap;
 }
 
 #map {
@@ -184,8 +185,9 @@ b {
 
 .dom-container {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .dom-container h3 {
