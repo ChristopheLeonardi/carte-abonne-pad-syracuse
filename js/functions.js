@@ -8,18 +8,15 @@ const createPopup = (data, contexte = "default", markerData = {}, color = "defau
     title.setAttribute("class", contexte)
     popupContent.appendChild(title)
 
-    let ville = document.createElement('h5')
-    ville.textContent = data.libelle_geographique + ' '
-    ville.setAttribute("class", contexte)
-    popupContent.appendChild(ville)
-
-    if ((data.nom_du_reseau_de_bibliotheques != "") && (data.nom_du_reseau_de_bibliotheques != "-")) {
+    if ((data.nom_cmpp != "") && (data.nom_cmpp != "-")) {
         let reseau = document.createElement('button')
         reseau.setAttribute('class', 'btn-text')
-        reseau.textContent = `${data.nom_du_reseau_de_bibliotheques}`
+        reseau.textContent = `${data.nom_cmpp}`
         $(reseau).click(e => {
-            $("#seeker")[0].value = `"${data.nom_du_reseau_de_bibliotheques}"`
+            console.log(data)
+            $("#seeker")[0].value = `"${data.nom_cmpp}"`
             $("#search").click()
+            carteAbonnee.setView(L.latLng(data.coordonnees_gps_lat_lon.split(",")), 8)
         })
         popupContent.appendChild(reseau)
     }
@@ -27,32 +24,56 @@ const createPopup = (data, contexte = "default", markerData = {}, color = "defau
     /* ////////////////////////// */
     /* TODO : Format case adresse */
     /* ////////////////////////// */
-
     let adresse = document.createElement('address')
-    let regex = /(?!(rue|avenue|boulevard|r|av|ave|bd|bvd|square|sente|impasse|cours|esplanade|allée|résidence|parc|rond-point|chemin|côte|place|cité|quai|passage|lôtissement|hameau|le|la|les|des|du|de|l'|d'))/gi
-    let formatAdresse = data.adresse_postale
+
+    let regex = /\b(?!rue|avenue|boulevard|r\s+|av\s+|ave\s+|bd\s+|bvd\s+|square\s+|sente\s+|impasse\s+|cours\s+|esplanade\s+|allée\s+|résidence\s+|parc\s+|rond-point\s+|chemin\s+|côte\s+|place\s+|cité\s+|quai\s+|passage\s+|lôtissement\s+|hameau\s+|le\s+|la\s+|les\s+|des\s+|du\s+|de\s+|l\'|d\'|bis,*\s+|ter,*\s+)\b\S+/gi
+    let formatAdresse = data.adresse_postale.toLowerCase()
         .replace(/[0-9]{5}.+/gm, str => { return str.toUpperCase() })
+        .replace(regex, str => { return capitalizeFirstLetter(str) })
         .replace(/\s+france$/ig, "")
-        /* .replace(regex, str => {
-            return str.split("").map(word => word.charAt(0).toUpperCase()).join(" ")
-        }) */
 
-
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
     adresse.innerHTML = formatAdresse
     adresse.setAttribute("class", contexte)
     popupContent.appendChild(adresse)
 
-    if (data.telephone != "") {
-        let tel = document.createElement('p')
-        tel.innerHTML = `<b>Tél. :</b> ${data.telephone}`
-        popupContent.appendChild(tel)
-    }
-    if (data.email != "") {
-        let email = document.createElement('p')
-        email.innerHTML = `<b>E-mail :</b> ${data.email}`
-        popupContent.appendChild(email)
-    }
+    /* Abonnements */
+    let abonnement_title = document.createElement("h5")
+    abonnement_title.textContent = "Services disponibles :"
+    popupContent.appendChild(abonnement_title)
+
+    let is_domicile = data.services == "A" || data.services == "AP" ? "abo" : "noabo"
+
+    let domicile_service = document.createElement('div')
+    domicile_service.setAttribute("class", `services ${is_domicile}`)
+
+    let domicile_service_icon = document.createElement("img")
+    domicile_service_icon.setAttribute("src", `/ui/plug-in/integration/carte-abonne-pad/img/${is_domicile}.svg`)
+    domicile_service.appendChild(domicile_service_icon)
+
+    let domicile_service_text = document.createElement("p")
+    domicile_service_text.textContent = "Accès à domicile"
+    domicile_service.appendChild(domicile_service_text)
+
+    popupContent.appendChild(domicile_service)
+    
+    let is_proj = data.services == "P" || data.services == "AP" ? "proj" : "noproj"
+    let proj_service = document.createElement('div')
+    proj_service.setAttribute("class", `services ${is_proj}`)
+
+    let proj_service_icon = document.createElement("img")
+    proj_service_icon.setAttribute("src", `/ui/plug-in/integration/carte-abonne-pad/img/${is_proj}.svg`)
+    proj_service.appendChild(proj_service_icon)
+
+    let proj_service_text = document.createElement("p")
+    proj_service_text.textContent = "Accès sur place"
+    proj_service.appendChild(proj_service_text)
+
+    popupContent.appendChild(proj_service)
+
     if (data.lien != "") {
         let webButton = document.createElement('a')
         webButton.textContent = `Consulter le site`
@@ -160,7 +181,7 @@ const searchBox = (data, map, cats, regions) => {
                     filterCatItem.push(item)
                 }
             })
-            newMarkers.push(createCluster(cat, filterCatItem, regions))
+            newMarkers.push(window.map_utils.createCluster(cat, filterCatItem, regions))
         })
 
         // Création de la liste des marqueurs filtrés 
@@ -169,8 +190,7 @@ const searchBox = (data, map, cats, regions) => {
 
         $("#access-button").remove()
         accessibilityButton(filterQuery.filtered)
-
-
+        createButtonReseaux(filterQuery.filtered)
 
         // Construction du DOM des résultats
         document.getElementById('searchResults').replaceChildren()
@@ -189,7 +209,7 @@ const searchBox = (data, map, cats, regions) => {
                 resultsLink.setAttribute("class", "btn btn-default")
                 resultsLink.textContent = "Voir la liste"
 
-                $(".search-bar")[0].appendChild(resultsLink)
+                $(".search-bar")[0].insertBefore(resultsLink, document.getElementById("result-msg"))
 
                 $("#noResult-msg").remove()
 
@@ -198,6 +218,13 @@ const searchBox = (data, map, cats, regions) => {
 
     })
 
+}
+
+const flatArray = (array) => {
+    array = array.flat().reduce(function(result, current) {
+        return Object.assign(result, current);
+    }, {})
+    return array
 }
 const filterSearch = (data) => {
 
@@ -288,6 +315,7 @@ const createResetButton = (cats, data, regions) => {
         $("#seeker")[0].value = ""
         $(".search-bar #search")[0].click()
         $("#resultsLink").remove()
+        $(".btn-reseau").remove()
 
         cats.slice(1).map(cat => {
             var resetData = []
@@ -296,7 +324,7 @@ const createResetButton = (cats, data, regions) => {
                     resetData.push(item)
                 }
             })
-            createCluster(cat, resetData, regions)
+            window.map_utils.createCluster(cat, resetData, regions)
         })
         $("#result-msg span")[0].textContent = data.length
     })
@@ -434,4 +462,36 @@ const createResultsDisplay = () => {
     nbElement.setAttribute("id", "result-msg")
     nbElement.innerHTML = `<span>${window["data_selected"].length}</span> Institution(s)`
     document.getElementsByClassName('search-bar')[0].appendChild(nbElement)
+}
+
+const createButtonReseaux = reseaux => {
+    var reseaux = [...new Set([... reseaux.map(item => {return {"name":item.nom_cmpp, "latlng":item.coordonnees_gps_lat_lon}})])]
+    var uniqueReseaux = [...new Map(reseaux.map(v => [v.name, v])).values()]
+    uniqueReseaux = uniqueReseaux.filter(reseau => {return reseau.name != ""})
+
+    $(".btn-reseaux").remove()
+    if ($("#seeker")[0].value != ""){
+        uniqueReseaux.map(reseau => {
+            let button = document.createElement("button")
+            button.setAttribute("class", "btn btn-default btn-reseaux")
+            button.textContent = reseau.name
+            document.getElementById("mapFilter").insertBefore(button, document.getElementById("typeSelection"))
+            $(button).click(e => {
+
+                $("#seeker")[0].value = `"${reseau.name}"`
+                $("#search").click()
+                let coord = reseau.latlng.split(",")
+                carteAbonnee.setView(coord, 6)
+            })
+        })
+    }
+}
+
+window["utils"] = {
+    "createPopup":createPopup,
+    "createResetButton":createResetButton,
+    "createResultsDisplay":createResultsDisplay,
+    "catFilter":catFilter,
+    "DOMFilter":DOMFilter,
+    "searchBox":searchBox   
 }

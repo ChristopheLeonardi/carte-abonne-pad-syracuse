@@ -63,25 +63,36 @@ Promise.all(promises).then(data => {
         var fieldset = document.createElement('fieldset')
         fieldset.setAttribute('id', 'typeSelection')
 
-        createResetButton(cats, data[0], regions)
-        createResultsDisplay()
+        window.utils.createResetButton(cats, data[0], regions)
+        window.utils.createResultsDisplay()
 
         let catTitle = document.createElement("h3")
         catTitle.textContent = "Filtrer par catégories"
         fieldset.appendChild(catTitle)
 
-        cats.forEach((cat, index) => { catFilter(cat, index, fieldset) })
+        cats.forEach((cat, index) => { window.utils.catFilter(cat, index, fieldset) })
 
         document.getElementById("mapFilter").appendChild(fieldset)
 
-        DOMFilter(document.getElementById("mapContainer"))
+        window.utils.DOMFilter(document.getElementById("map"))
 
         return div;
     };
 
     command.addTo(carteAbonnee);
 
-    searchBox(window["allData"], L, cats, regions)
+    window.utils.searchBox(window["allData"], L, cats, regions)
+
+    // Event on map change
+    carteAbonnee.on('moveend', function(e) {
+        var zoom = carteAbonnee.getZoom()
+        if (zoom > 6){
+            $(".dom-container").remove()
+        }
+        else if (!$(".dom-container").length){
+            window.utils.DOMFilter(document.getElementById("map"))
+        }
+     });
 
 })
 
@@ -136,7 +147,7 @@ const createLayer = (data, cluster, icon, color) => {
         }
 
         new_markers = L.marker(geo, { icon: icon })
-        cluster.addLayer(new_markers.bindPopup(createPopup(item, "default", {}, color)).openPopup())
+        cluster.addLayer(new_markers.bindPopup(window.utils.createPopup(item, "default", {}, color)).openPopup())
         carteAbonnee.addLayer(cluster)
 
         var marker = {}
@@ -168,9 +179,7 @@ const createCluster = (cat, data, regions) => {
 
 
 
-const flatArray = (array) => {
-    array = array.flat().reduce(function(result, current) {
-        return Object.assign(result, current);
-    }, {})
-    return array
+
+window["map_utils"] = {
+    "createCluster":createCluster 
 }

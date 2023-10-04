@@ -135,6 +135,29 @@ b {
     left: 8px;
 }
 
+.refonte2021 .leaflet-popup-content .services {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 0.5em;
+}
+.refonte2021 .leaflet-popup-content .services img {
+    width: 30px;
+    margin-right: 0.5em;
+}
+.refonte2021 .leaflet-popup-content .services * {
+    align-self: center;
+    margin-bottom: 0;
+}
+.refonte2021 .leaflet-popup-content .services p {
+    font-weight: 700;
+}
+.refonte2021 .leaflet-popup-content .services.noabo p,
+.refonte2021 .leaflet-popup-content .services.noproj p {
+    color: #b1b1b1;
+}
+
+
 
 /* Filters */
 
@@ -185,9 +208,14 @@ b {
 
 .dom-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     flex-wrap: wrap;
-    width: 100%;
+    width: fit-content;
+    z-index: 1000;
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    flex-direction: column;
 }
 
 .dom-container h3 {
@@ -195,10 +223,13 @@ b {
 }
 
 .dom-container button {
-    margin: 0 0.5em 0.4em 0;
+    margin: 0 0.5em 1em 0;
     width: 70px;
-    border-radius: 16px;
+    border-radius: 8px;
     overflow: hidden;
+    background-color: #fff;
+    outline: 1px solid #fff;
+
 }
 
 .dom-container p {
@@ -212,9 +243,9 @@ b {
 
 .dom-container img {
     width: 70px;
-    border-radius: 16px;
     margin: auto;
     display: block;
+    border: 1px solid #fff;
 }
 
 #filter-results {
@@ -327,7 +358,14 @@ b {
     font-weight: bold;
     font-size: 1.2em;
 }
-
+.refonte2021 #mapFilter .btn-reseaux{
+    background-color: #22999F !important;
+    color: #fff !important;
+    margin-bottom: 0.5em;
+}
+.refonte2021 #mapFilter .btn-reseaux:hover{
+    background-color: #19767B !important;
+}
 
 /* Tableau accessibilite */
 
